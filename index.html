@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071016">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="index,follow">
+  <meta name="description" content="CloneCatch 是面向肿瘤科研与教学的空间取样偏差可视化模拟器：构建合成肿瘤、放置虚拟活检芯针、运行 Monte Carlo 模拟并比较不同取样策略的稀有克隆漏检风险。">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="CloneCatch｜看看你的活检漏掉了什么">
+  <meta property="og:description" content="交互式模拟肿瘤空间异质性、活检取样策略与稀有克隆漏检风险。仅用于科研与教学。">
+  <meta name="twitter:card" content="summary">
+  <title>CloneCatch｜看看你的活检漏掉了什么</title>
+  <link rel="stylesheet" href="assets/app.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <nav class="nav" aria-label="主导航">
+      <div class="brand">
+        <span class="brandmark" aria-hidden="true"></span>
+        CloneCatch <small>空间活检模拟器</small>
+      </div>
+      <div class="nav-actions">
+        <span class="pill"><span class="status-dot" aria-hidden="true"></span>科研模拟沙盒</span>
+        <button class="btn ghost small" id="shareBtn" type="button">生成分享链接</button>
+        <button class="btn primary small" id="jumpBtn" type="button">打开模拟器</button>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <div class="eyebrow">把肿瘤内异质性真正画出来</div>
+        <h1>看看你的活检<br><em>漏掉了什么。</em></h1>
+        <p class="lead">
+          CloneCatch 把空间肿瘤异质性变成一场可重复的虚拟实验：生成合成肿瘤、放置活检芯针、运行 Monte Carlo 模拟，
+          并量化一个具有生物学意义的稀有克隆有多大概率从你的样本中“消失”。
+        </p>
+        <div class="hero-actions">
+          <button class="btn primary" id="heroStart" type="button">开始一次虚拟活检 →</button>
+          <button class="btn" id="heroBenchmark" type="button">比较取样策略</button>
+        </div>
+        <div class="hero-proof">
+          <div><b id="heroRare">5.0%</b>稀有耐药克隆占比</div>
+          <div><b id="heroMiss">待计算</b>预计漏检风险</div>
+          <div><b>1 个链接</b>复现实验配置与可见芯针</div>
+        </div>
+        <div class="hero-cn-tag">所有计算均在浏览器本地完成，不上传科研数据</div>
+      </div>
+
+      <div class="hero-visual" aria-label="合成空间肿瘤动态预览">
+        <canvas id="heroCanvas"></canvas>
+        <div class="hero-float">稀有克隆可见率<b id="heroVisibility">待计算</b></div>
+        <div class="hero-caption"><span>合成空间肿瘤</span><span>进入模拟器后可直接点击肿瘤放置芯针</span></div>
+      </div>
+    </header>
+
+    <section id="simulator" aria-labelledby="simulatorTitle">
+      <div class="section-head">
+        <div>
+          <h2 id="simulatorTitle">空间取样工作台</h2>
+          <p>每一张肿瘤图都是合成数据。漏检概率会根据当前空间结构、芯针几何、检测阈值与检测聚合方式重新计算。</p>
+        </div>
+        <span class="pill">模型 v1.1 · 纯前端计算</span>
+      </div>
+
+      <div class="workspace">
+        <div class="tabs" role="tablist" aria-label="CloneCatch 功能视图">
+          <button class="tab active" id="tab-explore" role="tab" aria-selected="true" aria-controls="view-explore" data-tab="explore" type="button">交互探索</button>
+          <button class="tab" id="tab-benchmark" role="tab" aria-selected="false" aria-controls="view-benchmark" data-tab="benchmark" type="button">策略基准</button>
+          <button class="tab" id="tab-labs" role="tab" aria-selected="false" aria-controls="view-labs" data-tab="labs" type="button">双实验室</button>
+          <button class="tab" id="tab-protocol" role="tab" aria-selected="false" aria-controls="view-protocol" data-tab="protocol" type="button">方案与导出</button>
+        </div>
+
+        <div class="view active" id="view-explore" role="tabpanel" aria-labelledby="tab-explore">
+          <div class="explore-grid">
+            <aside class="controls" aria-label="模拟参数">
+              <div class="control-group">
+                <div class="group-title">肿瘤空间结构</div>
+                <label class="row" for="architecture">
+                  <div class="label-line"><span>空间模式</span></div>
+                  <select id="architecture">
+                    <option value="branched">分支演化</option>
+                    <option value="patchwork">斑块生态位</option>
+                    <option value="gradient">方向性梯度</option>
+                    <option value="rare-edge">边缘稀有生态位</option>
+                  </select>
+                </label>
+                <label class="row" for="cloneCount">
+                  <div class="label-line"><span>克隆类别数</span><output id="cloneCountOut" for="cloneCount">5</output></div>
+                  <input id="cloneCount" type="range" min="3" max="6" value="5" step="1">
+                </label>
+                <label class="row" for="rarePct">
+                  <div class="label-line"><span>稀有克隆总体占比</span><output id="rarePctOut" for="rarePct">5.0%</output></div>
+                  <input id="rarePct" type="range" min="0.5" max="18" value="5" step="0.5">
+                </label>
+                <label class="row" for="clustering">
+                  <div class="label-line"><span>空间聚集度</span><output id="clusteringOut" for="clustering">72</output></div>
+                  <input id="clustering" type="range" min="10" max="95" value="72" step="1">
+                </label>
+                <label class="row" for="seedInput">
+                  <div class="label-line"><span>随机种子</span></div>
+                  <input id="seedInput" type="number" value="1837" min="1" max="99999999" inputmode="numeric">
+                </label>
+                <button class="btn small wide full-width" id="regenerateBtn" type="button">按当前参数重新生成肿瘤</button>
+              </div>
+
+              <div class="control-group">
+                <div class="group-title">活检设计</div>
+                <label class="row" for="strategy">
+                  <div class="label-line"><span>取样策略</span></div>
+                  <select id="strategy">
+                    <option value="random">随机芯针</option>
+                    <option value="center">中心偏置</option>
+                    <option value="center-edge">中心 + 边缘</option>
+                    <option value="dispersed">空间分散</option>
+                  </select>
+                </label>
+                <label class="row" for="biopsyCount">
+                  <div class="label-line"><span>芯针数量</span><output id="biopsyCountOut" for="biopsyCount">3</output></div>
+                  <input id="biopsyCount" type="range" min="1" max="8" value="3" step="1">
+                </label>
+                <label class="row" for="coreLength">
+                  <div class="label-line"><span>芯针相对长度</span><output id="coreLengthOut" for="coreLength">42%</output></div>
+                  <input id="coreLength" type="range" min="18" max="62" value="42" step="1">
+                </label>
+                <label class="row" for="coreWidth">
+                  <div class="label-line"><span>芯针相对宽度</span><output id="coreWidthOut" for="coreWidth">6%</output></div>
+                  <input id="coreWidth" type="range" min="3" max="13" value="6" step="1">
+                </label>
+                <label class="row" for="detectFloor">
+                  <div class="label-line"><span>检测阈值</span><output id="detectFloorOut" for="detectFloor">2.0%</output></div>
+                  <input id="detectFloor" type="range" min="0.5" max="10" value="2" step="0.5">
+                </label>
+                <label class="row" for="assayMode">
+                  <div class="label-line"><span>检测聚合方式</span></div>
+                  <select id="assayMode">
+                    <option value="per-core">逐芯针独立检测：任一阳性即捕获</option>
+                    <option value="pooled">合并检测：混合后统一判阈值</option>
+                  </select>
+                </label>
+                <div class="assay-note" id="assayNote">默认按“逐芯针独立检测”计算，更接近多区域分别检测后再汇总是否捕获到某个克隆的设计。</div>
+              </div>
+
+              <div class="control-group">
+                <div class="group-title">Monte Carlo 重复次数</div>
+                <div class="seg" id="runsSeg" aria-label="选择模拟次数">
+                  <button data-runs="1000" type="button">1 千次</button>
+                  <button data-runs="3000" class="active" type="button">3 千次</button>
+                  <button data-runs="10000" type="button">1 万次</button>
+                  <button data-runs="20000" type="button">2 万次</button>
+                </div>
+                <p class="result-note">肿瘤结构在固定种子下完全确定；Monte Carlo 的随机性仅来自虚拟芯针的位置与方向。</p>
+              </div>
+            </aside>
+
+            <main class="canvas-zone">
+              <div class="canvas-toolbar">
+                <div class="left">
+                  <span class="pill"><span class="status-dot" aria-hidden="true"></span>合成肿瘤</span>
+                  <span class="pill" id="manualCountPill">已放置 0 根芯针</span>
+                </div>
+                <div class="left">
+                  <button class="btn small" id="autoPlaceBtn" type="button">按策略自动放置</button>
+                  <button class="btn small" id="clearCoresBtn" type="button">清空芯针</button>
+                </div>
+              </div>
+              <div class="stage" id="stage">
+                <canvas id="tumorCanvas" tabindex="0" aria-label="交互式空间肿瘤地图。鼠标点击肿瘤内部可放置虚拟活检芯针；键盘聚焦后按 Enter 可在肿瘤中心放置芯针。"></canvas>
+                <div class="canvas-tooltip" id="canvasTooltip" role="status"></div>
+                <div class="stage-hint">点击肿瘤放置芯针 · 悬停查看克隆 · 键盘 Enter 可在中心放置</div>
+                <div class="legend" id="legend" aria-label="克隆图例"></div>
+              </div>
+            </main>
+
+            <aside class="insights" aria-label="当前结果">
+              <div class="group-title">当前取样读数</div>
+              <div class="metric-grid">
+                <div class="metric"><div class="k">稀有克隆</div><div class="v" id="rareDetected">—</div><div class="s">当前已放置芯针</div></div>
+                <div class="metric"><div class="k">克隆景观恢复率</div><div class="v" id="manualRecovery">—</div><div class="s">检测到的真实克隆类别比例</div></div>
+                <div class="metric"><div class="k">代表性</div><div class="v" id="manualRep">—</div><div class="s">1 − 总变差距离</div></div>
+                <div class="metric"><div class="k">已放置芯针</div><div class="v" id="coresPlaced">0</div><div class="s">手动或自动放置</div></div>
+              </div>
+
+              <div class="clone-bars" id="cloneBars"></div>
+
+              <div class="callout" aria-live="polite">
+                <div class="group-title no-margin">Monte Carlo 稀有克隆漏检风险</div>
+                <div class="big" id="mcRareMiss">—</div>
+                <p id="mcExplain">运行模拟后，将估计当前取样设计漏掉最稀有克隆的概率。</p>
+                <p class="result-note" id="mcCi">95% Monte Carlo 区间：—</p>
+                <div class="progress" aria-hidden="true"><span id="mcProgress"></span></div>
+                <div class="run-status"><span id="runStatus">尚未运行正式模拟</span><strong id="runStatusPct"></strong></div>
+              </div>
+
+              <div class="action-stack">
+                <button class="btn primary wide" id="runMcBtn" type="button">运行 Monte Carlo</button>
+                <button class="btn" id="snapshotBtn" type="button">导出 PNG</button>
+                <button class="btn" id="newSeedBtn" type="button">换一个种子</button>
+                <button class="btn wide" id="toBenchmarkBtn" type="button">比较全部策略 →</button>
+              </div>
+              <p class="result-note">仅用于科研与教学。这里的克隆比例是合成空间类别比例，不等同于 VAF、肿瘤纯度、倍体状态或临床生物标志物判定。</p>
+            </aside>
+          </div>
+        </div>
+
+        <div class="view" id="view-benchmark" role="tabpanel" aria-labelledby="tab-benchmark" hidden>
+          <div class="benchmark-wrap">
+            <div class="benchmark-top">
+              <div>
+                <h3>同一个肿瘤，哪种取样设计看到得更多？</h3>
+                <div class="sub">所有策略使用完全相同的肿瘤结构、芯针几何、芯针数量与检测阈值。漏检风险越低越好；代表性越高越好。</div>
+                <div class="benchmark-mode">当前检测模式：<span class="mode-badge" id="benchmarkModeBadge">逐芯针独立检测</span></div>
+              </div>
+              <button class="btn primary" id="runBenchmarkBtn" type="button">运行策略基准</button>
+            </div>
+
+            <div class="strategy-table" id="strategyTable">
+              <div class="strategy-row header">
+                <div>策略</div><div>稀有克隆漏检</div><div>任一克隆漏检</div><div>景观恢复率</div><div>代表性</div>
+              </div>
+              <div class="strategy-row"><div class="strategy-name"><b>随机芯针</b><span>在肿瘤内部均匀随机取样</span></div><div>—</div><div>—</div><div>—</div><div>—</div></div>
+              <div class="strategy-row"><div class="strategy-name"><b>中心偏置</b><span>芯针更集中于肿瘤中心区域</span></div><div>—</div><div>—</div><div>—</div><div>—</div></div>
+              <div class="strategy-row"><div class="strategy-name"><b>中心 + 边缘</b><span>在中央区与外周区交替取样</span></div><div>—</div><div>—</div><div>—</div><div>—</div></div>
+              <div class="strategy-row"><div class="strategy-name"><b>空间分散</b><span>优先最大化芯针之间的空间距离</span></div><div>—</div><div>—</div><div>—</div><div>—</div></div>
+            </div>
+
+            <div class="curve-wrap">
+              <div class="viz-panel">
+                <div class="viz-title">稀有克隆漏检风险 vs 芯针数量</div>
+                <div class="viz-sub">曲线由重复虚拟取样估计。若选择“合并检测”，增加芯针并不保证漏检风险单调下降，因为混合后可能发生比例稀释。</div>
+                <svg id="riskSvg" viewBox="0 0 650 240" role="img" aria-label="不同策略随芯针数量变化的稀有克隆漏检风险曲线"></svg>
+              </div>
+              <div class="viz-panel">
+                <div class="viz-title">当前肿瘤的决策摘要</div>
+                <div class="viz-sub">仅代表当前合成肿瘤与当前参数，不代表临床最优策略。</div>
+                <div class="benchmark-summary" id="benchmarkSummary">
+                  <div class="summary-line"><span class="sub">稀有克隆捕获最佳</span><b>—</b></div>
+                  <div class="summary-line"><span class="sub">整体代表性最佳</span><b>—</b></div>
+                  <div class="summary-line"><span class="sub">增加 1 根芯针的漏检风险变化</span><b>—</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" id="view-labs" role="tabpanel" aria-labelledby="tab-labs" hidden>
+          <div class="labs-wrap">
+            <h3>双实验室：同一个肿瘤，不同的一针</h3>
+            <div class="sub">两个实验室面对完全相同的异质性肿瘤，并采用相同的取样设计。仅仅因为取样位置不同，它们对稀有克隆的结论有多大概率发生冲突？</div>
+            <div class="labs-grid">
+              <div class="lab-card">
+                <div class="lab-head"><span>实验室 A</span><span id="labAStrategy">随机芯针</span></div>
+                <div class="lab-result" id="labAResult">—</div>
+                <div class="lab-detail" id="labADetail">点击“重放两家实验室”，生成一组独立取样。</div>
+              </div>
+              <div class="versus">同一肿瘤<br>≠<br>同一样本</div>
+              <div class="lab-card">
+                <div class="lab-head"><span>实验室 B</span><span id="labBStrategy">随机芯针</span></div>
+                <div class="lab-result" id="labBResult">—</div>
+                <div class="lab-detail" id="labBDetail">点击“重放两家实验室”，生成一组独立取样。</div>
+              </div>
+            </div>
+            <div class="conflict">
+              <div class="pct" id="conflictPct">—</div>
+              <div>
+                <b>预计稀有克隆判定冲突率</b>
+                <p id="conflictText">运行 Monte Carlo 后，根据同一设计下的捕获概率估计两次独立取样一阳一阴的概率。</p>
+              </div>
+            </div>
+            <div class="actions-spaced">
+              <button class="btn primary" id="replayLabsBtn" type="button">重放两家实验室</button>
+              <button class="btn" id="labsMcBtn" type="button">立即估计冲突率</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="view" id="view-protocol" role="tabpanel" aria-labelledby="tab-protocol" hidden>
+          <div class="protocol-wrap">
+            <h3>实验方案、指纹与导出</h3>
+            <div class="sub">把当前模拟状态转换为可复现的中文 Methods 片段、机器可读配置、Monte Carlo 结果和可直接用于汇报的肿瘤图。</div>
+            <div class="protocol-grid">
+              <div>
+                <label class="sr-only" for="methodsText">自动生成的 Methods 文本</label>
+                <textarea id="methodsText" aria-label="自动生成的 Methods 文本"></textarea>
+                <div class="actions-inline">
+                  <button class="btn primary" id="copyMethodsBtn" type="button">复制 Methods</button>
+                  <button class="btn" id="downloadMethodsBtn" type="button">下载 .txt</button>
+                </div>
+              </div>
+              <div>
+                <div class="group-title">实验配置指纹</div>
+                <div class="fingerprint" id="fingerprint">正在计算…</div>
+                <div class="sub">优先使用 Web Crypto 计算规范化实验配置的 SHA-256；若浏览器环境不支持，则显示明确标记的非加密后备指纹。</div>
+                <div class="export-list">
+                  <div class="export-item"><div><b>配置 JSON</b><br><span>种子、空间结构、芯针几何与检测规则</span></div><button class="btn small" id="downloadJsonBtn" type="button">导出</button></div>
+                  <div class="export-item"><div><b>最新 Monte Carlo CSV</b><br><span>漏检、恢复率、代表性与 95% 模拟区间</span></div><button class="btn small" id="downloadCsvBtn" type="button">导出</button></div>
+                  <div class="export-item"><div><b>肿瘤图 PNG</b><br><span>当前肿瘤地图与已放置芯针</span></div><button class="btn small" id="downloadPngBtn2" type="button">导出</button></div>
+                  <div class="export-item"><div><b>分享 URL 状态</b><br><span>包含配置版本与当前可见芯针</span></div><button class="btn small" id="shareBtn2" type="button">生成</button></div>
+                </div>
+                <div class="model-strip">
+                  <div class="model-chip"><b>芯针积分</b><span>固定 17×7 规则网格近似，不再额外随机抽点。</span></div>
+                  <div class="model-chip"><b>漏检区间</b><span>Wilson 95% 区间，仅反映有限 Monte Carlo 次数造成的模拟误差。</span></div>
+                  <div class="model-chip"><b>隐私</b><span>本版本没有网络请求、账号系统或数据上传。</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="science">
+        <article>
+          <h3>显式空间模型</h3>
+          <p>模拟器把肿瘤表示为二维合成网格，并生成具有空间连续性的克隆生态位。稀有克隆总体比例被约束到目标附近，而其空间位置由模式与聚集度参数共同决定。</p>
+        </article>
+        <article>
+          <h3>模拟取样，不做诊断</h3>
+          <p>虚拟芯针只是对合成网格进行几何取样。你可以选择“每根芯针独立判阈值”或“所有芯针合并后判阈值”。本模型不推断 VAF、纯度、倍体、治疗反应、预后或患者级风险。</p>
+        </article>
+        <article>
+          <h3>可解释指标</h3>
+          <p>代表性定义为 1 减去样本克隆组成与全肿瘤真实组成之间的总变差距离。Monte Carlo 风险来自对同一固定合成肿瘤进行重复空间取样。</p>
+        </article>
+      </div>
+
+      <div class="refs">
+        <h3>科学背景与边界</h3>
+        <ol>
+          <li>Gerlinger M, et al. <i>Intratumor Heterogeneity and Branched Evolution Revealed by Multiregion Sequencing.</i> N Engl J Med. 2012;366(10):883–892. doi:10.1056/NEJMoa1113205。</li>
+          <li>Nicol PB, Barabási DL, Coombes KR, Asiaee A. <i>SITH: An R package for visualizing and analyzing a spatial model of intratumor heterogeneity.</i> Comput Syst Oncol. 2022;2(2):e1033. doi:10.1002/cso2.1033。</li>
+          <li>CloneCatch 的目标是帮助研究者直观看到“空间异质性 + 有限取样”如何改变观测结果，而不是替代经过验证的测序流程、病理评估、统计设计软件或临床决策系统。</li>
+        </ol>
+        <p>⚠️ 本网站是合成科研/教学沙盒，不是医疗器械，不得使用其输出进行患者诊断、治疗选择或个体化临床风险判断。</p>
+      </div>
+
+      <footer class="footer">
+        <span>CloneCatch · 看看你的活检漏掉了什么。</span>
+        <span>可复现 · 浏览器本地计算 · 科研与教学用途</span>
+      </footer>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" aria-live="polite"></div>
+</body>
+</html>
