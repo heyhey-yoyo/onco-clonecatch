@@ -1425,7 +1425,6 @@
     $("#downloadCsvBtn").addEventListener("click", () => download(`clonecatch_mc_seed-${state.seed}.csv`, mcCsv(), "text/csv;charset=utf-8"));
     $("#downloadMethodsBtn").addEventListener("click", () => download(`clonecatch_methods_seed-${state.seed}.txt`, $("#methodsText").value));
     $("#copyMethodsBtn").addEventListener("click", copyMethods);
-    $("#shareBtn").addEventListener("click", makeShare);
     $("#shareBtn2").addEventListener("click", makeShare);
 
     window.addEventListener("resize", () => {
