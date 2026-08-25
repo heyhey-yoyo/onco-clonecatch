@@ -83,3 +83,8 @@ python3 -m http.server 8000
 > - 修改 `buildTumor`、`generateCores`、`evaluateCores`、`sampleCoreGrid` 等模拟核心函数会改变科学结果，必须保持"固定种子完全确定、MC 仅随机于芯针"的可复现性承诺
 > - 新增控件须同步 `DEFAULTS`、`syncControls`、`sanitizeConfig`、`currentConfig` 与分享 payload 版本五处
 > - 修改科学指标时同步更新 `docs/MODEL.md` 与 README
+
+
+## 标志维护约定
+
+项目标志采用统一的深灰方章、米白线条与赤陶色识别点，页面标志与 favicon 共用同一 `project-mark.svg`。后续替换必须保持原标志容器宽高，不得借机改变页眉、网格或页面布局。

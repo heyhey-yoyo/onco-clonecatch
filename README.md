@@ -102,3 +102,8 @@ npx wrangler pages deploy project --project-name=<你的项目名>
 > **⚠️ 任何修改此项目的 AI 代理（Claude Code、Cursor、Copilot 等）都必须同步更新本文件与 [AGENTS.md](./AGENTS.md)。**
 >
 > - 修改 `buildTumor`、`generateCores`、`evaluateCores` 等模拟核心函数会影响科学结果，必须保持固定种子完全确定的可复现性
+
+
+## 项目标志
+
+页面标志与浏览器标题栏图标共用 `project-mark.svg`：深灰方章、米白线条与赤陶色识别点形成统一系列，同时保留本项目的专属主题符号。替换标志时不得改变现有标志容器尺寸或页面布局。

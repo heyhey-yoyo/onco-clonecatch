@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <title>Onco CloneCatch</title><rect x="2" y="2" width="44" height="44" rx="4" fill="#24221f"/>
+  <path d="M24 11v9m0 0-10 8m10-8 10 8M14 28v8m20-8v8" fill="none" stroke="#f3eee5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="24" cy="10" r="3" fill="#c15f3c"/><circle cx="14" cy="37" r="4" fill="none" stroke="#f3eee5" stroke-width="2.2"/><circle cx="34" cy="37" r="4" fill="#c15f3c"/>
+</svg>

@@ -254,3 +254,5 @@ body{font-size:15px}
 .metric .s,.result-note,.strategy-row.header,.strategy-name span,.viz-sub,.versus,.fingerprint,.export-item span,.footer,.assay-note,.metric .ci,.run-status,.model-chip span{font-size:12.5px}
 .metric .k,.callout p,.bar-label,.viz-title,.lab-head,.lab-detail,.conflict p,textarea,.export-item b,.science p,.refs,.hero-cn-tag,.benchmark-mode{font-size:13px}
 .mode-badge{font-size:12.5px;color:#743721;background:#f0ded4;border-color:rgba(169,79,49,.35)}
+.brandmark{background:var(--ink) url("./project-mark.svg") center/100% 100% no-repeat}
+.brandmark:before,.brandmark:after{display:none}
