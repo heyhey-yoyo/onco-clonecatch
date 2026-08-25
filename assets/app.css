@@ -214,3 +214,36 @@ button:disabled{cursor:not-allowed;opacity:.55}
 .footer a{color:var(--muted);text-decoration:underline;text-decoration-color:rgba(255,255,255,.18)}
 @media(max-width:860px){.model-strip{grid-template-columns:1fr}.canvas-tooltip{top:94px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn,.progress span,.toast,.canvas-tooltip{transition:none!important}}
+
+/* Portfolio visual system: retain the simulation canvas and research controls. */
+:root{--bg:#f3eee5;--panel:rgba(255,252,247,.82);--panel2:#ebe4d8;--line:rgba(36,34,31,.18);--line2:rgba(36,34,31,.3);--text:#24221f;--ink:#24221f;--muted:#6f6a62;--muted2:#938b80;--accent:#c15f3c;--accent2:#8c6b5d;--primary-soft:#f0ded4;--warn:#a56b2b;--danger:#b84a45;--good:#357b56;--shadow:0 14px 32px rgba(36,34,31,.06);--radius:0}
+body{color:var(--text);background:radial-gradient(900px 620px at 80% -5%,rgba(193,95,60,.1),transparent 62%),var(--bg)}
+h1,h2,h3,.brand{font-family:Georgia,"Times New Roman","Songti SC","STSong",serif;font-weight:400}
+.shell{max-width:1440px;padding:0 clamp(22px,4.5vw,72px) 80px}
+.nav{background:rgba(243,238,229,.92);border-color:var(--line);margin:0 calc(-1 * clamp(22px,4.5vw,72px));padding:0 clamp(22px,4.5vw,72px);backdrop-filter:blur(12px)}
+.brandmark{border-radius:0;background:var(--ink);box-shadow:none}
+.pill,.btn{border-color:var(--line2);border-radius:0;background:transparent;color:var(--text)}
+.btn:hover{border-color:var(--accent);background:rgba(255,255,255,.35)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.hero{padding-top:clamp(88px,13vh,160px);border-color:var(--line)}
+.eyebrow{color:var(--accent)}
+.lead{color:#4f4b45}
+.hero-visual{border-radius:0;background:rgba(235,228,216,.62);box-shadow:none}
+.hero-float,.workspace,.tabs,.control-group,.seg,.metric,.callout,.model-chip,.assay-note,.warning-note,.mode-badge,.canvas-tooltip,.legend{border-radius:0}
+.hero-float,.workspace{background:rgba(255,252,247,.72);border-color:var(--line)}
+.workspace{box-shadow:none}
+.tabs{background:rgba(235,228,216,.66);border-color:var(--line)}
+.tab.active{background:var(--ink);color:var(--bg)}
+.group-title,.label-line,.hero-proof{color:var(--muted)}
+select,input[type=number]{background:rgba(255,255,255,.45);color:var(--text);border-color:var(--line2);border-radius:0}
+select:focus,input:focus{border-color:var(--accent)}
+.seg button{background:transparent;color:var(--muted);border-color:var(--line);border-radius:0}
+.seg button.active{border-color:var(--accent);color:var(--text);background:var(--primary-soft)}
+.canvas-zone{background:#ebe4d8}
+.stage-hint,.legend{background:rgba(255,252,247,.88);border-color:var(--line);color:var(--muted)}
+.metric{background:rgba(255,252,247,.6);border-color:var(--line)}
+.callout{background:var(--primary-soft);border-color:rgba(193,95,60,.28)}
+.track,.progress{background:rgba(36,34,31,.1)}
+.progress span{background:var(--accent)}
+.footer a{color:var(--muted);text-decoration-color:rgba(36,34,31,.25)}
+@media(max-width:860px){.shell{padding-inline:18px}.nav{margin-inline:-18px;padding-inline:18px}}

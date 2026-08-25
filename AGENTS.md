@@ -71,6 +71,7 @@ python3 -m http.server 8000
 - 新增控件必须五处同步：`DEFAULTS`、`syncControls`、`sanitizeConfig`、`currentConfig`、分享 payload 版本号
 - 全 `const`/`function`，无 class/export；camelCase 命名；DOM id 与 state 字段一一对应
 - 中文 UI 文案硬编码于 JS 常量与 HTML；最后一个克隆强制"稀有耐药克隆"
+- 页面主体采用 `ydchen-portfolio` 的米白 / 赤陶色视觉系统；保留 Canvas 画布、研究控件、状态提示与导出交互
 
 ---
 
