@@ -247,3 +247,10 @@ select:focus,input:focus{border-color:var(--accent)}
 .progress span{background:var(--accent)}
 .footer a{color:var(--muted);text-decoration-color:rgba(36,34,31,.25)}
 @media(max-width:860px){.shell{padding-inline:18px}.nav{margin-inline:-18px;padding-inline:18px}}
+
+/* Visual QA baseline: keep the workbench dense, but make operational text consistently readable. */
+:root{--muted:#5f5a53;--muted2:#6b655e;--accent:#a94f31}
+body{font-size:15px}
+.metric .s,.result-note,.strategy-row.header,.strategy-name span,.viz-sub,.versus,.fingerprint,.export-item span,.footer,.assay-note,.metric .ci,.run-status,.model-chip span{font-size:12.5px}
+.metric .k,.callout p,.bar-label,.viz-title,.lab-head,.lab-detail,.conflict p,textarea,.export-item b,.science p,.refs,.hero-cn-tag,.benchmark-mode{font-size:13px}
+.mode-badge{font-size:12.5px;color:#743721;background:#f0ded4;border-color:rgba(169,79,49,.35)}

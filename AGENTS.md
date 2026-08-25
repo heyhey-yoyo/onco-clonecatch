@@ -72,6 +72,7 @@ python3 -m http.server 8000
 - 全 `const`/`function`，无 class/export；camelCase 命名；DOM id 与 state 字段一一对应
 - 中文 UI 文案硬编码于 JS 常量与 HTML；最后一个克隆强制"稀有耐药克隆"
 - 页面主体采用 `ydchen-portfolio` 的米白 / 赤陶色视觉系统；保留 Canvas 画布、研究控件、状态提示与导出交互
+- 视觉验收以正文 15px、操作与状态标签不小于 12px 为基线；画布注释保持高对比度，并在 1440px 桌面与 390px 手机视口检查整体横向溢出
 
 ---
 
