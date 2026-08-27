@@ -33,6 +33,7 @@
 | `404.html` | Cloudflare Pages 404 页（noindex） |
 | `robots.txt` | 允许全站 |
 | `_headers` | 安全响应头（CSP `connect-src 'none'` 等） |
+| `tests/static-smoke.test.mjs` | 零依赖静态验收（资源、关键控件、脚本语法、响应式样式、重复 ID） |
 | `docs/MODEL.md` | 科学模型说明（公式、策略、明确未建模内容） |
 
 ## 运行与构建
@@ -45,7 +46,7 @@ python3 -m http.server 8000
 
 ## 测试
 
-无自动化测试（无 package.json / CI）。修改后需人工浏览器验证的关键点：
+可运行 `node --test tests/static-smoke.test.mjs` 检查模拟器资源、关键控件、脚本语法、响应式样式与固定 ID。修改后仍需人工浏览器验证的关键点：
 
 - 确定性复现：同一 seed 重新生成肿瘤逐像素一致；分享 URL 往返状态不变
 - 指标正确性：`evaluateCores` 的 per-core/pooled 分支、`wilsonInterval`、TVD 代表性

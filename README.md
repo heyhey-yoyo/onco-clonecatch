@@ -55,6 +55,16 @@ python3 -m http.server 8000
 
 然后访问 `http://localhost:8000/`。
 
+## 自动验收
+
+无需第三方依赖即可运行：
+
+```bash
+node --test tests/static-smoke.test.mjs
+```
+
+该检查覆盖模拟器资源、关键控件、脚本语法、响应式样式与重复 ID；固定种子、Monte Carlo、导出和分享链接仍需浏览器回归。
+
 ## Cloudflare Pages 部署
 
 **方式 A：GitHub 集成（推荐长期维护）**
