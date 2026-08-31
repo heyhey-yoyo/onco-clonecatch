@@ -8,7 +8,7 @@
 
 核心概念（详见 `docs/MODEL.md`）：
 
-- 3–6 个空间克隆类别，最后一个永远是"稀有耐药克隆"（`rareIndex = state.cloneCount - 1`）
+- 3–6 个空间克隆类别，最后一个永远是「稀有耐药克隆」（`rareIndex = state.cloneCount - 1`）
 - 4 种合成结构：`branched`、`patchwork`、`gradient`、`rare-edge`
 - 4 种取样策略：`random`、`center`、`center-edge`、`dispersed`
 - 2 种检测聚合：`per-core`（逐芯针独立检测）、`pooled`（合并检测）
@@ -23,7 +23,7 @@
 - 确定性随机：FNV-1a 风格 `hashString` + `mulberry32` PRNG + `rngFor(tag)` 按标签隔离随机流；**同一 seed 下肿瘤结构完全确定，Monte Carlo 随机性仅来自芯针位置与方向**
 - 异步分批：每 120 次重复经 `requestAnimationFrame` 让出主线程
 
-## 仓库结构
+## 项目结构
 
 | 文件 | 作用 |
 | --- | --- |
@@ -46,12 +46,26 @@ python3 -m http.server 8000
 
 ## 测试
 
-可运行 `node --test tests/static-smoke.test.mjs` 检查模拟器资源、关键控件、脚本语法、响应式样式与固定 ID。修改后仍需人工浏览器验证的关键点：
+```bash
+node --test tests/static-smoke.test.mjs
+```
+
+该检查覆盖模拟器资源、关键控件、脚本语法、响应式样式与重复 ID。修改后仍需人工浏览器验证的关键点：
 
 - 确定性复现：同一 seed 重新生成肿瘤逐像素一致；分享 URL 往返状态不变
 - 指标正确性：`evaluateCores` 的 per-core/pooled 分支、`wilsonInterval`、TVD 代表性
 - Monte Carlo 进度与取消（`setBusy` 防重入）
 - 导出（PNG/CSV/JSON/Methods）与无障碍（键盘、aria-live、reduced-motion）
+
+## 代码组织与风格约定
+
+- 单文件但分层清晰：常量白名单（`Object.freeze`）→ 全局状态 → 随机基础 → **模拟核心纯函数**（`buildTumor`/`generateCores`/`evaluateCores`/`wilsonInterval`/`runSimulationAsync`，不碰 DOM）→ 渲染层 → 导出层 → 分享消毒层 → UI 绑定
+- **失效模型**：改变取样参数调 `invalidateSampling()` 清空结果缓存；改变肿瘤结构参数调 `buildTumor()` 重建网格与 720×720 `tumorCache`
+- 新增控件必须五处同步：`DEFAULTS`、`syncControls`、`sanitizeConfig`、`currentConfig`、分享 payload 版本号
+- 全 `const`/`function`，无 class/export；camelCase 命名；DOM id 与 state 字段一一对应
+- 中文 UI 文案硬编码于 JS 常量与 HTML；最后一个克隆强制「稀有耐药克隆」
+- 页面主体采用 `ydchen-portfolio` 的米白 / 赤陶色视觉系统；保留 Canvas 画布、研究控件、状态提示与导出交互
+- 视觉验收以正文 15px、操作与状态标签不小于 12px 为基线；画布注释保持高对比度，并在 1440px 桌面与 390px 手机视口检查整体横向溢出
 
 ## 部署
 
@@ -65,15 +79,9 @@ python3 -m http.server 8000
 - 分享状态写入 URL hash（`#cc=<Base64URL>`），读取时严格消毒（`sanitizeConfig`/`sanitizeCore` 钳制数值、枚举白名单），非法状态回退安全默认值
 - 导出文件经 Blob + `URL.createObjectURL` 触发，800ms 后 `revokeObjectURL`
 
-## 代码组织与风格约定
+## 标志维护约定
 
-- 单文件但分层清晰：常量白名单（`Object.freeze`）→ 全局状态 → 随机基础 → **模拟核心纯函数**（`buildTumor`/`generateCores`/`evaluateCores`/`wilsonInterval`/`runSimulationAsync`，不碰 DOM）→ 渲染层 → 导出层 → 分享消毒层 → UI 绑定
-- **失效模型**：改变取样参数调 `invalidateSampling()` 清空结果缓存；改变肿瘤结构参数调 `buildTumor()` 重建网格与 720×720 `tumorCache`
-- 新增控件必须五处同步：`DEFAULTS`、`syncControls`、`sanitizeConfig`、`currentConfig`、分享 payload 版本号
-- 全 `const`/`function`，无 class/export；camelCase 命名；DOM id 与 state 字段一一对应
-- 中文 UI 文案硬编码于 JS 常量与 HTML；最后一个克隆强制"稀有耐药克隆"
-- 页面主体采用 `ydchen-portfolio` 的米白 / 赤陶色视觉系统；保留 Canvas 画布、研究控件、状态提示与导出交互
-- 视觉验收以正文 15px、操作与状态标签不小于 12px 为基线；画布注释保持高对比度，并在 1440px 桌面与 390px 手机视口检查整体横向溢出
+项目标志采用统一的深灰方章、米白线条与赤陶色识别点，页面标志与 favicon 共用同一 `project-mark.svg`。后续替换必须保持原标志容器宽高，不得借机改变页眉、网格或页面布局。
 
 ---
 
@@ -81,11 +89,6 @@ python3 -m http.server 8000
 
 > **⚠️ 任何修改此项目的 AI 代理（包括未来的你自己）都必须遵守：**
 >
-> - 修改 `buildTumor`、`generateCores`、`evaluateCores`、`sampleCoreGrid` 等模拟核心函数会改变科学结果，必须保持"固定种子完全确定、MC 仅随机于芯针"的可复现性承诺
+> - 修改 `buildTumor`、`generateCores`、`evaluateCores`、`sampleCoreGrid` 等模拟核心函数会改变科学结果，必须保持「固定种子完全确定、MC 仅随机于芯针」的可复现性承诺
 > - 新增控件须同步 `DEFAULTS`、`syncControls`、`sanitizeConfig`、`currentConfig` 与分享 payload 版本五处
 > - 修改科学指标时同步更新 `docs/MODEL.md` 与 README
-
-
-## 标志维护约定
-
-项目标志采用统一的深灰方章、米白线条与赤陶色识别点，页面标志与 favicon 共用同一 `project-mark.svg`。后续替换必须保持原标志容器宽高，不得借机改变页眉、网格或页面布局。
