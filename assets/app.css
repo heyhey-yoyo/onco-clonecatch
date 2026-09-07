@@ -10,7 +10,7 @@ a{color:inherit}
 .nav{height:74px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;background:linear-gradient(180deg,rgba(7,16,22,.95),rgba(7,16,22,.78));backdrop-filter:blur(18px);border-bottom:1px solid var(--line);margin:0 -28px;padding:0 28px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand strong,.brand small{display:block}
-.brand strong{font-size:18px;line-height:1.15;letter-spacing:-.02em;font-weight:750}
+.brand strong{font-size:18px;line-height:1.15;letter-spacing:-.02em;font-weight:400}
 .brand small{font-size:12px;margin-top:2px;letter-spacing:.05em;color:var(--muted);font-weight:500}
 .brandmark{width:48px;height:48px;border-radius:50%;position:relative;background:linear-gradient(135deg,rgba(91,224,206,.95),rgba(138,184,255,.72));box-shadow:0 0 0 1px rgba(255,255,255,.16) inset,0 8px 30px rgba(91,224,206,.14)}
 .brandmark:before,.brandmark:after{content:"";position:absolute;left:10px;right:10px;height:1px;background:rgba(4,18,24,.55);transform:rotate(-28deg)}
@@ -175,6 +175,7 @@ textarea{width:100%;min-height:360px;resize:vertical;background:#08131b;color:#c
 @media(max-width:520px){h1{font-size:46px}
 .lead{font-size:15px}
 .brand small{display:none}
+.brandmark{width:40px;height:40px}
 .nav-actions .btn.ghost{display:none}
 .hero-proof{gap:16px}
 .canvas-toolbar{align-items:flex-start;flex-direction:column}

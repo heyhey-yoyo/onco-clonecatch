@@ -1,4 +1,4 @@
-# CloneCatch — 肿瘤空间取样偏差可视化（AI 代理工作指南）
+# CloneCatch（肿瘤空间取样偏差可视化） — 项目说明（供 AI 编程代理阅读）
 
 本文件供 AI 编码代理使用。修改代码前请先阅读本文件。
 
@@ -18,7 +18,7 @@
 
 ## 技术栈与运行架构
 
-- 单文件 IIFE 原生 JavaScript（`assets/app.js`，约 1450 行），ES2019+，无构建、无 npm、无任何第三方依赖
+- 单文件 IIFE 原生 JavaScript（`assets/app.js`），ES2019+，无构建、无 npm、无任何第三方依赖
 - Canvas 2D（交互肿瘤地图 + hero 动画）+ SVG（策略风险曲线）
 - 确定性随机：FNV-1a 风格 `hashString` + `mulberry32` PRNG + `rngFor(tag)` 按标签隔离随机流；**同一 seed 下肿瘤结构完全确定，Monte Carlo 随机性仅来自芯针位置与方向**
 - 异步分批：每 120 次重复经 `requestAnimationFrame` 让出主线程
@@ -30,18 +30,22 @@
 | `index.html` | 站点入口单页：4 个 Tab、全部表单控件，控件 id 与 JS 一一对应 |
 | `assets/app.js` | 全部逻辑（单文件 IIFE）：合成肿瘤、芯针取样、检测聚合、Monte Carlo、渲染、导出、分享 |
 | `assets/app.css` | 全部样式（压缩单行风格 + CSS 变量，响应式断点 1180/860/520px） |
+| `assets/icon.svg` | 界面图标 |
+| `assets/project-mark.svg` | 页面标志与 favicon 共用图形 |
 | `404.html` | Cloudflare Pages 404 页（noindex） |
 | `robots.txt` | 允许全站 |
 | `_headers` | 安全响应头（CSP `connect-src 'none'` 等） |
 | `tests/static-smoke.test.mjs` | 零依赖静态验收（资源、关键控件、脚本语法、响应式样式、重复 ID） |
 | `docs/MODEL.md` | 科学模型说明（公式、策略、明确未建模内容） |
+| `LICENSE` | MIT 许可证 |
+| `.gitignore` | Git 忽略规则 |
 
 ## 运行与构建
 
 无构建步骤，可直接双击 `index.html` 打开；推荐用同源环境：
 
 ```bash
-python3 -m http.server 8000
+python -m http.server 8000
 ```
 
 ## 测试
@@ -70,7 +74,7 @@ node --test tests/static-smoke.test.mjs
 ## 部署
 
 - Cloudflare Pages 静态部署，无构建：Build command 留空，输出目录为仓库根
-- 方式：GitHub 集成（推荐）或 Direct Upload（`npx wrangler pages deploy project --project-name=<名>`）
+- 方式：GitHub 集成（推荐）或 Direct Upload（在项目根目录执行 `npx wrangler pages deploy . --project-name=<名>`）
 - 部署后检查：首页、404、分享链接、导出、响应头
 
 ## 安全与数据注意事项
@@ -81,7 +85,7 @@ node --test tests/static-smoke.test.mjs
 
 ## 标志维护约定
 
-项目标志采用统一的深灰方章、米白线条与赤陶色识别点，页面标志与 favicon 共用同一 `project-mark.svg`。后续替换必须保持原标志容器宽高，不得借机改变页眉、网格或页面布局。
+项目标志采用统一的深灰方章、米白线条与赤陶色识别点，页面标志与 favicon 共用同一 `assets/project-mark.svg`。后续替换必须保持原标志容器宽高，不得借机改变页眉、网格或页面布局。
 
 ---
 

@@ -39,7 +39,7 @@ CloneCatch 是一个纯前端、零第三方依赖的肿瘤空间取样偏差可
 可以直接双击 `index.html`。为了更接近 Cloudflare Pages 的真实同源环境，推荐在项目目录启动静态服务器：
 
 ```bash
-python3 -m http.server 8000
+python -m http.server 8000
 ```
 
 然后访问 `http://localhost:8000/`。
@@ -57,10 +57,10 @@ python3 -m http.server 8000
 
 **方式 B：Direct Upload**
 
-可以直接上传整个 `project/` 目录。使用 Wrangler 时可在父目录执行：
+可以直接上传整个仓库根目录（站点文件就在仓库根）。使用 Wrangler 时在项目根目录执行：
 
 ```bash
-npx wrangler pages deploy project --project-name=<你的项目名>
+npx wrangler pages deploy . --project-name=<你的项目名>
 ```
 
 也可以使用 Cloudflare Dashboard 的拖拽上传功能。
@@ -70,6 +70,10 @@ npx wrangler pages deploy project --project-name=<你的项目名>
 仅用于科研与教学，不是医疗器械，不用于患者诊断、治疗选择或临床风险判断。
 
 科学模型详见 `docs/MODEL.md`。
+
+## License
+
+MIT
 
 ---
 
