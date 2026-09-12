@@ -361,6 +361,6 @@ body{font-family:var(--type-body);font-size:var(--size-body);line-height:1.6}
 .nav :is(a,button):not(.brand):not(.brand-v9){font-family:var(--type-body);font-size:15px;line-height:1.5}
 @media(max-width:640px){.nav{min-height:64px;gap:12px;padding:11px 16px;flex-wrap:wrap}.nav .brand strong{font-size:16px}.nav .brandmark{width:40px;height:40px;flex-basis:40px}.nav :is(a,button):not(.brand):not(.brand-v9){font-size:14px}}
 
-.shell{padding-inline:var(--brand-pad)}.nav{width:100%;max-width:1280px;margin-inline:auto}
+.shell{padding-inline:var(--brand-pad)}.nav{width:100%;max-width:none;margin-inline:0;padding-inline:max(16px,calc((100% - 1280px)/2 + 16px))}
 
 .nav > :last-child{margin-left:auto}
