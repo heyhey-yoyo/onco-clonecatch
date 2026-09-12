@@ -2,7 +2,22 @@
   "use strict";
 
   const BASE_CLONE_NAMES = ["祖先克隆", "分支 A", "分支 B", "适应性克隆", "应激生态位"];
-  const CLONE_COLORS = ["#75d9cb", "#80aef3", "#c59aea", "#f2b86e", "#89c991", "#ff788c"];
+  const themeVars = getComputedStyle(document.documentElement);
+  const themeColor = (name, fallback) => themeVars.getPropertyValue(name).trim() || fallback;
+  const CLONE_COLORS = [
+    themeColor("--clone-1", "#c15f3c"),
+    themeColor("--clone-2", "#d9a05b"),
+    themeColor("--clone-3", "#7da088"),
+    themeColor("--clone-4", "#6b8cae"),
+    themeColor("--clone-5", "#a2678e"),
+    themeColor("--clone-6", "#8a8f5c")
+  ];
+  const STRATEGY_COLORS = [
+    themeColor("--strategy-1", "#c15f3c"),
+    themeColor("--strategy-2", "#d9a05b"),
+    themeColor("--strategy-3", "#6b8cae"),
+    themeColor("--strategy-4", "#7da088")
+  ];
   const STRATEGIES = {
     random: { name: "随机芯针", short: "随机" },
     center: { name: "中心偏置", short: "中心" },
@@ -130,7 +145,9 @@
     }, {}));
   }
 
+  let fingerprintSeq = 0;
   async function updateFingerprint() {
+    const seq = ++fingerprintSeq;
     const text = canonicalConfig();
     let fingerprint = "";
     try {
@@ -147,6 +164,7 @@
       const b = hashString([...text].reverse().join("")).toString(16).padStart(8, "0");
       fingerprint = `fallback-${a}${b}${a}${b}`.slice(0, 64);
     }
+    if (seq !== fingerprintSeq) return;
     $("#fingerprint").textContent = fingerprint;
     updateMethods(fingerprint);
   }
@@ -312,7 +330,7 @@
     context.fillStyle = gradient;
     context.fillRect(0, 0, 720, 720);
     context.restore();
-    context.strokeStyle = "rgba(215,241,246,.27)";
+    context.strokeStyle = "rgba(36,34,31,.25)";
     context.lineWidth = 1.2;
     context.beginPath();
     context.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -371,8 +389,8 @@
       context.rotate(core.angle);
       const length = core.len * radius;
       const coreWidth = core.width * radius;
-      context.fillStyle = "rgba(240,249,250,.11)";
-      context.strokeStyle = index === state.manualCores.length - 1 ? "rgba(255,255,255,.88)" : "rgba(240,249,250,.52)";
+      context.fillStyle = "rgba(36,34,31,.08)";
+      context.strokeStyle = index === state.manualCores.length - 1 ? "rgba(36,34,31,.9)" : "rgba(36,34,31,.55)";
       context.lineWidth = 1.2 * dpr;
       roundRectPath(context, -length / 2, -coreWidth / 2, length, coreWidth, coreWidth / 2);
       context.fill();
@@ -423,8 +441,8 @@
       context.save();
       context.translate(bx, by);
       context.rotate(-0.62 + angle * 0.08);
-      context.strokeStyle = "rgba(255,255,255,.68)";
-      context.fillStyle = "rgba(255,255,255,.07)";
+      context.strokeStyle = "rgba(36,34,31,.55)";
+      context.fillStyle = "rgba(36,34,31,.05)";
       context.lineWidth = 1.2;
       roundRectPath(context, -radius * 0.18, -radius * 0.025, radius * 0.36, radius * 0.05, radius * 0.025);
       context.fill();
@@ -435,22 +453,31 @@
 
   function startHeroAnimation() {
     const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    let heroRafId = 0;
+    const loop = (timestamp) => {
+      heroRafId = 0;
+      drawHeroFrame(timestamp);
+      if (state.heroVisible && !document.hidden) heroRafId = requestAnimationFrame(loop);
+    };
+    const startLoop = () => {
+      if (!heroRafId && state.heroVisible && !document.hidden) heroRafId = requestAnimationFrame(loop);
+    };
     if ("IntersectionObserver" in window) {
       const observer = new IntersectionObserver((entries) => {
         state.heroVisible = entries.some((entry) => entry.isIntersecting);
         if (state.heroVisible && reduceMotion) drawHeroFrame(performance.now());
+        if (state.heroVisible) startLoop();
       }, { threshold: 0.05 });
       observer.observe($(".hero-visual"));
     }
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) startLoop();
+    });
     if (reduceMotion) {
       drawHeroFrame(performance.now());
       return;
     }
-    const loop = (timestamp) => {
-      drawHeroFrame(timestamp);
-      requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
+    startLoop();
   }
 
   function lookupClone(x, y) {
@@ -815,16 +842,16 @@
     for (let y = 0; y <= 4; y += 1) {
       const yy = top + plotHeight * y / 4;
       const value = 100 - y * 25;
-      output += `<line x1="${left}" x2="${width - right}" y1="${yy}" y2="${yy}" stroke="rgba(205,228,240,.09)"/>`;
-      output += `<text x="${left - 8}" y="${yy + 4}" fill="#718996" text-anchor="end" font-size="10">${value}%</text>`;
+      output += `<line x1="${left}" x2="${width - right}" y1="${yy}" y2="${yy}" style="stroke:var(--line)"/>`;
+      output += `<text x="${left - 8}" y="${yy + 4}" style="fill:var(--muted2)" text-anchor="end" font-size="10">${value}%</text>`;
     }
     for (let n = 1; n <= 8; n += 1) {
       const x = left + plotWidth * (n - 1) / 7;
-      output += `<text x="${x}" y="${height - 10}" fill="#718996" text-anchor="middle" font-size="10">${n}</text>`;
+      output += `<text x="${x}" y="${height - 10}" style="fill:var(--muted2)" text-anchor="middle" font-size="10">${n}</text>`;
     }
 
     if (state.curveData) {
-      const colors = ["#66e3d0", "#8ab8ff", "#c59aea", "#ffbe72"];
+      const colors = STRATEGY_COLORS;
       Object.keys(STRATEGIES).forEach((key, strategyIndex) => {
         const values = state.curveData[key];
         const points = values.map((value, index) => `${left + plotWidth * index / 7},${top + plotHeight * (1 - value)}`).join(" ");
@@ -836,11 +863,11 @@
       let legendX = left;
       Object.keys(STRATEGIES).forEach((key, strategyIndex) => {
         output += `<circle cx="${legendX}" cy="11" r="3" fill="${colors[strategyIndex]}"/>`;
-        output += `<text x="${legendX + 8}" y="14" fill="#9db1bb" font-size="9">${STRATEGIES[key].short}</text>`;
+        output += `<text x="${legendX + 8}" y="14" style="fill:var(--muted)" font-size="9">${STRATEGIES[key].short}</text>`;
         legendX += strategyIndex === 2 ? 80 : 72;
       });
     } else {
-      output += `<text x="${width / 2}" y="${height / 2}" fill="#718996" text-anchor="middle" font-size="12">运行策略基准后生成风险曲线</text>`;
+      output += `<text x="${width / 2}" y="${height / 2}" style="fill:var(--muted2)" text-anchor="middle" font-size="12">运行策略基准后生成风险曲线</text>`;
     }
     svg.innerHTML = output;
   }
@@ -900,12 +927,12 @@
     canvas.width = 1400;
     canvas.height = 1500;
     const context = canvas.getContext("2d");
-    context.fillStyle = "#071016";
+    context.fillStyle = themeColor("--bg", "#f3eee5");
     context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = "#eef8fb";
+    context.fillStyle = themeColor("--text", "#24221f");
     context.font = '700 54px "PingFang SC","Microsoft YaHei",system-ui,sans-serif';
     context.fillText("CloneCatch", 72, 92);
-    context.fillStyle = "#91a8b4";
+    context.fillStyle = themeColor("--muted", "#6f6a62");
     context.font = '30px "PingFang SC","Microsoft YaHei",system-ui,sans-serif';
     context.fillText("看看你的活检漏掉了什么。", 72, 140);
     const side = 1120;
@@ -922,21 +949,21 @@
       context.rotate(core.angle);
       const length = core.len * radius;
       const coreWidth = core.width * radius;
-      context.fillStyle = "rgba(240,249,250,.11)";
-      context.strokeStyle = "rgba(240,249,250,.52)";
+      context.fillStyle = "rgba(36,34,31,.08)";
+      context.strokeStyle = "rgba(36,34,31,.55)";
       context.lineWidth = 1.2;
       roundRectPath(context, -length / 2, -coreWidth / 2, length, coreWidth, coreWidth / 2);
       context.fill();
       context.stroke();
       context.restore();
     });
-    context.fillStyle = "#c9dbe2";
+    context.fillStyle = themeColor("--text", "#24221f");
     context.font = '24px "PingFang SC","Microsoft YaHei",system-ui,sans-serif';
     context.fillText(`${STRATEGIES[state.strategy].name} · ${state.biopsyCount} 根芯针 · 检测阈值 ${state.detectFloor.toFixed(1)}%`, 72, 1375);
-    context.fillStyle = "#91a8b4";
+    context.fillStyle = themeColor("--muted", "#6f6a62");
     context.font = '21px "PingFang SC","Microsoft YaHei",system-ui,sans-serif';
     context.fillText(`${ASSAY_NAMES[state.assayMode]} · 合成肿瘤 · 种子 ${state.seed}`, 72, 1415);
-    context.fillStyle = "#718996";
+    context.fillStyle = themeColor("--muted2", "#938b80");
     context.font = '18px "PingFang SC","Microsoft YaHei",system-ui,sans-serif';
     context.fillText("仅用于科研与教学，不用于患者诊疗决策", 72, 1450);
     canvas.toBlob((blob) => {
@@ -945,7 +972,9 @@
       const anchor = document.createElement("a");
       anchor.href = url;
       anchor.download = `clonecatch_seed-${state.seed}.png`;
+      document.body.appendChild(anchor);
       anchor.click();
+      anchor.remove();
       setTimeout(() => URL.revokeObjectURL(url), 800);
     }, "image/png");
   }
@@ -995,16 +1024,16 @@
   function sanitizeConfig(input = {}) {
     const config = { ...DEFAULTS };
     config.seed = numeric(input.seed, DEFAULTS.seed, 1, 99999999, true);
-    config.architecture = Object.hasOwn(ARCH_NAMES, input.architecture) ? input.architecture : DEFAULTS.architecture;
+    config.architecture = Object.prototype.hasOwnProperty.call(ARCH_NAMES, input.architecture) ? input.architecture : DEFAULTS.architecture;
     config.cloneCount = numeric(input.cloneCount, DEFAULTS.cloneCount, 3, 6, true);
     config.rarePct = numeric(input.rarePct, DEFAULTS.rarePct, 0.5, 18);
     config.clustering = numeric(input.clustering, DEFAULTS.clustering, 10, 95, true);
-    config.strategy = Object.hasOwn(STRATEGIES, input.strategy) ? input.strategy : DEFAULTS.strategy;
+    config.strategy = Object.prototype.hasOwnProperty.call(STRATEGIES, input.strategy) ? input.strategy : DEFAULTS.strategy;
     config.biopsyCount = numeric(input.biopsyCount, DEFAULTS.biopsyCount, 1, 8, true);
     config.coreLength = numeric(input.coreLength, DEFAULTS.coreLength, 18, 62, true);
     config.coreWidth = numeric(input.coreWidth, DEFAULTS.coreWidth, 3, 13, true);
     config.detectFloor = numeric(input.detectFloor, DEFAULTS.detectFloor, 0.5, 10);
-    config.assayMode = Object.hasOwn(ASSAY_NAMES, input.assayMode) ? input.assayMode : DEFAULTS.assayMode;
+    config.assayMode = Object.prototype.hasOwnProperty.call(ASSAY_NAMES, input.assayMode) ? input.assayMode : DEFAULTS.assayMode;
     const runs = numeric(input.mcRuns, DEFAULTS.mcRuns, 1000, 20000, true);
     config.mcRuns = RUN_OPTIONS.includes(runs) ? runs : DEFAULTS.mcRuns;
     return config;
@@ -1144,7 +1173,10 @@
 
   function placeManualCore(x, y) {
     if (lookupClone(x, y) < 0) return;
-    if (state.manualCores.length >= 8) state.manualCores.shift();
+    if (state.manualCores.length >= 8) {
+      state.manualCores.shift();
+      toast("已达到 8 根芯针上限，最早放置的芯针已被移除");
+    }
     state.placementNonce += 1;
     const rng = rngFor(`manual-angle|${state.placementNonce}|${x.toFixed(4)}|${y.toFixed(4)}`);
     state.manualCores.push(coreGeometry(x, y, -0.5 + rng() * Math.PI));
