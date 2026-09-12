@@ -8,7 +8,7 @@ textarea{font:inherit}
 button{cursor:pointer}
 a{color:inherit}
 .shell{margin:auto}
-.nav{position:sticky;top:0;z-index:20}
+.nav{position:static;z-index:20}
 .brand{display:flex;align-items:center;gap:12px}
 .brand strong{display:block}
 .brand small{display:block}
