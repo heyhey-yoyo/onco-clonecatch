@@ -96,7 +96,7 @@ node --test tests/static-smoke.test.mjs
 ## 部署
 
 - Cloudflare Pages 静态部署，无构建：Build command 留空，输出目录为仓库根
-- 方式：GitHub 集成（推荐）或 Direct Upload（在项目根目录执行 `npx wrangler pages deploy . --project-name=<名>`）
+- 方式：Cloudflare Pages 的 Git 集成为正式部署路径，连接 GitHub 仓库后推送 `main` 自动部署
 - 部署后检查：首页、404、分享链接、导出、响应头
 
 ## 安全与数据注意事项
@@ -108,6 +108,8 @@ node --test tests/static-smoke.test.mjs
 ## 标志维护约定
 
 项目标志采用统一的深灰方章、米白线条与赤陶色识别点，页面标志与 favicon 共用同一 `assets/project-mark.svg`。后续替换必须保持原标志容器宽高，不得借机改变页眉、网格或页面布局。
+
+---
 
 ## AI 维护提醒
 

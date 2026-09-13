@@ -77,6 +77,12 @@ npx wrangler pages deploy . --project-name=<你的项目名>
 
 MIT
 
+---
+
+> AI 编程代理请阅读 [AGENTS.md](./AGENTS.md) 了解代码架构、测试与开发约定。
+
+---
+
 ## AI 维护提醒
 
 > **⚠️ 任何修改此项目的 AI 代理（Claude Code、Cursor、Copilot 等）都必须同步更新本文件与 [AGENTS.md](./AGENTS.md)。**
