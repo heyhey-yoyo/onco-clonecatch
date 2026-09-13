@@ -58,7 +58,7 @@ node --test tests/static-smoke.test.mjs
 
 - 确定性复现：同一 seed 重新生成肿瘤逐像素一致；分享 URL 往返状态不变
 - 指标正确性：`evaluateCores` 的 per-core/pooled 分支、`wilsonInterval`、TVD 代表性
-- Monte Carlo 进度与取消（`setBusy` 防重入）
+- Monte Carlo 分批进度与运行结束恢复（`setBusy` 防重入；当前没有中途取消入口）
 - 导出（PNG/CSV/JSON/Methods）与无障碍（键盘、aria-live、reduced-motion）
 
 发布检查：
@@ -69,7 +69,9 @@ node --test tests/static-smoke.test.mjs
 
 ## 代码组织与风格约定
 
-- 单文件但分层清晰：常量白名单（`Object.freeze`）→ 全局状态 → 随机基础 → **模拟核心纯函数**（`buildTumor`/`generateCores`/`evaluateCores`/`wilsonInterval`/`runSimulationAsync`，不碰 DOM）→ 渲染层 → 导出层 → 分享消毒层 → UI 绑定
+应用交付版本仅取 GitHub Release，本仓库无 package 或应用版本常量；`assets/app.js` 分享 payload 与导出 JSON 的 `version` 是内部格式版本，不随应用 Release 改号。
+
+- 单文件但分层清晰：常量白名单（`Object.freeze`）→ 全局状态 → 随机基础 → 模拟与统计层（`generateCores`、`evaluateCores`、`wilsonInterval` 等）→ 状态及异步编排（`buildTumor` 写入全局状态、重建 Canvas 缓存并触发渲染；`runSimulationAsync` 分批推进）→ 渲染层 → 导出层 → 分享消毒层 → UI 绑定
 - **失效模型**：改变取样参数调 `invalidateSampling()` 清空结果缓存；改变肿瘤结构参数调 `buildTumor()` 重建网格与 720×720 `tumorCache`
 - 新增控件必须五处同步：`DEFAULTS`、`syncControls`、`sanitizeConfig`、`currentConfig`、分享 payload 版本号
 - 全 `const`/`function`，无 class/export；camelCase 命名；DOM id 与 state 字段一一对应
@@ -92,6 +94,8 @@ node --test tests/static-smoke.test.mjs
 ### 交互与数据约束
 
 合成、取样与 Monte Carlo 规则独立于界面配色；图例和图形共享色彩来源。PNG 下载链接先加入 DOM，再点击并延迟移除与回收 URL。
+
+首页动画的初始启动、IntersectionObserver 与 visibilitychange 恢复入口统一检查减少动态效果设置；静态模式不得被异步回调重启，普通模式仍支持离屏暂停与回到视口恢复。静态测试包含这两种模式的回调回归。
 
 ## 部署
 

@@ -460,7 +460,7 @@
       if (state.heroVisible && !document.hidden) heroRafId = requestAnimationFrame(loop);
     };
     const startLoop = () => {
-      if (!heroRafId && state.heroVisible && !document.hidden) heroRafId = requestAnimationFrame(loop);
+      if (!reduceMotion && !heroRafId && state.heroVisible && !document.hidden) heroRafId = requestAnimationFrame(loop);
     };
     if ("IntersectionObserver" in window) {
       const observer = new IntersectionObserver((entries) => {
