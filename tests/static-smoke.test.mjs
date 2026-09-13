@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import vm from "node:vm";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -24,6 +25,20 @@ test("模拟器资源、关键控件与响应式样式保持完整", () => {
 test("静态页面不声明重复的固定 ID", () => {
   const ids = [...html.matchAll(/\bid=["']([A-Za-z][\w:-]*)["']/g)].map((match) => match[1]);
   assert.equal(new Set(ids).size, ids.length);
+});
+
+test("首页和错误页使用当前内容摘要，发布资源每次访问均重新验证", () => {
+  for (const page of ["index.html", "404.html"]) {
+    const source = readFileSync(resolve(root, page), "utf8");
+    const references = [...source.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css)(?:\?[^"']*)?)["']/g)];
+    assert.ok(references.length > 0, `${page} 必须声明资源`);
+    for (const [, reference] of references) {
+      const url = new URL(reference, "https://clonecatch.invalid/");
+      const content = readFileSync(resolve(root, url.pathname.slice(1)), "utf8").replace(/\r\n/g, "\n");
+      assert.equal(url.searchParams.get("v"), createHash("sha256").update(content).digest("hex").slice(0, 12), `${page}: ${reference}`);
+    }
+  }
+  assert.match(readFileSync(resolve(root, "_headers"), "utf8"), /^\/\*\r?\n\s+Cache-Control:\s*no-cache\s*$/m);
 });
 
 test("首页动效回调遵守减少动态效果，普通模式离屏暂停并可恢复", () => {

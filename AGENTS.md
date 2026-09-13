@@ -102,6 +102,7 @@ node --test tests/static-smoke.test.mjs
 - Cloudflare Pages 静态部署，无构建：Build command 留空，输出目录为仓库根
 - 方式：Cloudflare Pages 的 Git 集成为正式部署路径，连接 GitHub 仓库后推送 `main` 自动部署
 - 部署后检查：首页、404、分享链接、导出、响应头
+- `index.html` 与 `404.html` 的脚本、样式 URL 使用 `?v=` 内容摘要（文本统一 LF 后的 SHA-256 前 12 位）；资源内容变化必须同步入口摘要，`_headers` 对全部资源设置 `Cache-Control: no-cache`。当前 JS 为单文件 IIFE，无模块或 Worker 依赖；今后拆分时必须让变更的依赖 URL 同步更新并贯穿入口，不能只更新顶层脚本。
 
 ## 安全与数据注意事项
 
