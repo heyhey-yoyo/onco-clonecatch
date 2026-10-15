@@ -1,4 +1,4 @@
-# CloneCatch 中文版 — 项目说明（供 AI 编程代理阅读）
+# 活检模拟器｜CloneCatch — 项目说明（供 AI 编程代理阅读）
 
 本文件供 AI 编码代理使用。修改代码前请先阅读本文件。
 
@@ -30,7 +30,6 @@
 | `index.html` | 站点入口单页：4 个 Tab、全部表单控件，控件 id 与 JS 一一对应 |
 | `assets/app.js` | 全部逻辑（单文件 IIFE）：合成肿瘤、芯针取样、检测聚合、Monte Carlo、渲染、导出、分享 |
 | `assets/app.css` | 全部样式（压缩单行风格 + CSS 变量，响应式断点 1180/860/520px） |
-| `assets/icon.svg` | 界面图标 |
 | `assets/project-mark.svg` | 页面标志与 favicon 共用图形 |
 | `404.html` | Cloudflare Pages 404 页（noindex） |
 | `robots.txt` | 允许全站 |
@@ -100,7 +99,7 @@ node --test tests/static-smoke.test.mjs
 
 ## 部署
 
-- Cloudflare Pages 静态部署，无构建：Build command 留空，输出目录为仓库根
+- Cloudflare Pages（项目 `onco-clonecatch`）静态部署，无构建：Build command 留空，输出目录为仓库根
 - 方式：Cloudflare Pages 的 Git 集成为正式部署路径，连接 GitHub 仓库后推送 `main` 自动部署
 - 部署后检查：首页、404、分享链接、导出、响应头
 - `index.html` 与 `404.html` 的脚本、样式 URL 使用 `?v=` 内容摘要（文本统一 LF 后的 SHA-256 前 12 位）；资源内容变化必须同步入口摘要，`_headers` 对全部资源设置 `Cache-Control: no-cache`。当前 JS 为单文件 IIFE，无模块或 Worker 依赖；今后拆分时必须让变更的依赖 URL 同步更新并贯穿入口，不能只更新顶层脚本。
@@ -123,4 +122,4 @@ node --test tests/static-smoke.test.mjs
 >
 > - 修改 `buildTumor`、`generateCores`、`evaluateCores`、`sampleCoreGrid` 等模拟核心函数会改变科学结果，必须保持「固定种子完全确定、MC 仅随机于芯针」的可复现性承诺
 > - 新增控件须同步 `DEFAULTS`、`syncControls`、`sanitizeConfig`、`currentConfig` 与分享 payload 版本五处
-> - 修改科学指标时同步更新 `docs/MODEL.md` 与 README
+> - 修改科学指标时同步更新 `docs/MODEL.md` 与 [README.md](./README.md)
